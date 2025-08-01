@@ -1,16 +1,70 @@
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import Offcanvas from 'react-bootstrap/Offcanvas';
+import React from 'react';
+import {
+  Button,
+  Container,
+  Form,
+  Nav,
+  Navbar,
+  Offcanvas,
+  NavDropdown,
+} from 'react-bootstrap';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FaShoppingCart, FaUser, FaBoxOpen } from 'react-icons/fa';
+import axios from 'axios';
 
-function OffcanvasNavbar() {
+function Header({ setFilteredProducts }) {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [role, setRole] = React.useState(null);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    setIsLoggedIn(!!token);
+    setRole(storedRole);
+  }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
+
+  const expand = 'lg';
+
+  const isActive = (path) => (location.pathname === path ? 'active-link' : '');
+
+  // 🔍 Search Handler
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.get('http://localhost:7000/api/products');
+      const filtered = res.data.products.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      if (typeof setFilteredProducts === 'function') {
+        // Same-page search: works in ProductList or Products page
+        setFilteredProducts(filtered);
+      } else {
+        // Navigate to /products with query (fallback)
+        navigate(`/products?search=${searchTerm}`);
+      }
+    } catch (err) {
+      console.error('Search failed', err);
+    }
+  };
+
   return (
     <>
-      <Navbar expand="lg" className="bg-light mb-3 shadow-sm">
+      <Navbar expand={expand} className="bg-white shadow-lg py-3">
         <Container fluid>
-          <Navbar.Brand href="#">E-COMMERCE</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/" className="fw-bold fs-4 text-primary">
+            🛍️ E-COMMERCE
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="offcanvasNavbar" />
           <Navbar.Offcanvas
             id="offcanvasNavbar"
@@ -19,32 +73,106 @@ function OffcanvasNavbar() {
           >
             <Offcanvas.Header closeButton>
               <Offcanvas.Title id="offcanvasNavbarLabel">
-                Menu
+                Navigation Menu
               </Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
-              <Nav className="justify-content-end flex-grow-1 pe-3">
-                <Nav.Link href="/">Home</Nav.Link>
-                <Nav.Link href="/products">Products</Nav.Link>
-                <Nav.Link href="/cart">Cart</Nav.Link>
-                <Nav.Link href="/orders">Orders</Nav.Link>
-                <Nav.Link href="/profile">Profile</Nav.Link>
+              <Nav className="justify-content-end flex-grow-1 pe-3 gap-2">
+
+                {/* User Links */}
+                {role === 'user' && (
+                  <>
+                    <Nav.Link as={Link} to="/" className={isActive('/')}>
+                      Home
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/products" className={isActive('/products')}>
+                      Products
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/cart" className={isActive('/cart')}>
+                      <FaShoppingCart className="me-1" /> Cart
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/my-orders" className={isActive('/my-orders')}>
+                      <FaBoxOpen className="me-1" /> My Orders
+                    </Nav.Link>
+                  </>
+                )}
+
+                {/* Admin Links */}
+                {role === 'admin' && (
+                  <>
+                    <Nav.Link as={Link} to="/admin/products" className={isActive('/admin/products')}>
+                      All Products
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/admin/add-product" className={isActive('/admin/add-product')}>
+                      Add Product
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/admin/orders" className={isActive('/admin/orders')}>
+                      Orders
+                    </Nav.Link>
+                  </>
+                )}
+
+                {/* Profile Dropdown */}
+                <NavDropdown
+                  title={<span><FaUser className="me-1" /> Profile</span>}
+                  id={`offcanvasNavbarDropdown-expand-${expand}`}
+                >
+                  {isLoggedIn ? (
+                    <>
+                      <NavDropdown.Item as={Link} to="/profile">
+                        My Profile
+                      </NavDropdown.Item>
+                      <NavDropdown.Item onClick={logout}>
+                        Logout
+                      </NavDropdown.Item>
+                    </>
+                  ) : (
+                    <>
+                      <NavDropdown.Item as={Link} to="/login">
+                        Login
+                      </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} to="/sign-up">
+                        Sign Up
+                      </NavDropdown.Item>
+                    </>
+                  )}
+                </NavDropdown>
               </Nav>
-              <Form className="d-flex mt-3 mt-lg-0">
+
+              {/* 🔍 Search Box */}
+              <Form className="d-flex mt-4 mt-lg-0 ms-lg-3" role="search" onSubmit={handleSearch}>
                 <Form.Control
                   type="search"
                   placeholder="Search products..."
-                  className="me-2"
-                  aria-label="Search"
+                  className="me-2 rounded-pill px-3 border-secondary"
+                  style={{ maxWidth: '250px' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Button variant="outline-primary">Search</Button>
+                <Button variant="outline-primary" className="rounded-pill px-4" type="submit">
+                  Search
+                </Button>
               </Form>
             </Offcanvas.Body>
           </Navbar.Offcanvas>
         </Container>
       </Navbar>
+
+      <style>{`
+        .active-link {
+          font-weight: bold;
+          color: #0d6efd !important;
+          text-decoration: underline;
+        }
+        .navbar-nav .nav-link {
+          transition: all 0.2s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+          color: #0d6efd;
+        }
+      `}</style>
     </>
   );
 }
 
-export default OffcanvasNavbar;
+export default Header;
