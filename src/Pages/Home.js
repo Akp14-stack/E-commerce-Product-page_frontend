@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Row, Col, Container, Spinner, Alert } from 'react-bootstrap';
+import {
+  Card,
+  Button,
+  Row,
+  Col,
+  Container,
+  Spinner,
+  Alert,
+} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
+import '../Style/Home.css'; 
 function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +22,7 @@ function Home() {
         const data = await res.json();
 
         if (res.ok) {
-          setProducts(data.products); // assuming API sends { products: [...] }
+          setProducts(data.products);
         } else {
           setErr(data.message || 'Failed to fetch products');
         }
@@ -30,31 +38,41 @@ function Home() {
 
   return (
     <Container className="mt-4">
-      <h2 className="text-center mb-4">Welcome to the Home Page</h2>
-      <h4 className="mb-3">All Products</h4>
+      <h2 className="mb-4 text-center">Featured Products</h2>
 
       {loading ? (
         <div className="text-center">
-          <Spinner animation="border" />
+          <Spinner animation="border" variant="primary" />
         </div>
       ) : err ? (
         <Alert variant="danger">{err}</Alert>
       ) : (
-        <Row>
+        <Row className="g-4">
           {products.map((product) => (
-            <Col key={product._id} md={4} className="mb-4">
-              <Card>
-                <Card.Img
-                  variant="top"
-                  src={product.image || 'https://via.placeholder.com/150'}
-                  alt={product.name}
-                />
-                <Card.Body>
-                  <Card.Title>{product.name}</Card.Title>
-                  <Card.Text>₹{product.price}</Card.Text>
-                  <Link to={`/product/${product._id}`}>
-                    <Button variant="primary">View Product</Button>
-                  </Link>
+            <Col key={product._id} xs={12} sm={6} md={4} lg={3}>
+              <Card className="h-100 shadow-sm border-0 product-card">
+                <div className="img-container">
+                  <Card.Img
+                    variant="top"
+                    src={product.image || 'https://via.placeholder.com/300'}
+                    alt={product.name}
+                    className="product-image"
+                  />
+                </div>
+                <Card.Body className="d-flex flex-column">
+                  <Card.Title className="text-truncate" title={product.name}>
+                    {product.name}
+                  </Card.Title>
+                  <Card.Text className="text-muted mb-2">
+                    ₹{product.price}
+                  </Card.Text>
+                  <div className="mt-auto">
+                    <Link to={`/product/${product._id}`}>
+                      <Button variant="primary" className="w-100">
+                        View Product
+                      </Button>
+                    </Link>
+                  </div>
                 </Card.Body>
               </Card>
             </Col>

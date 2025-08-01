@@ -46,11 +46,15 @@ const UserOrderHistory = () => {
               <span><strong>Order ID:</strong> {order._id}</span>
               <span className={`badge bg-${getBadgeColor(order.status)}`}>{order.status}</span>
             </div>
+
             <div className="card-body">
+              <p><strong>Customer:</strong> {order.user?.name || 'N/A'}</p>
+              <p><strong>Mobile:</strong> {order.mobile || 'N/A'}</p>
               <p><strong>Address:</strong> {order.address}</p>
               <p><strong>Total:</strong> ₹{order.total}</p>
-              <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+              <p><strong>Order Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
 
+              <h6 className="mt-3">🛍️ Items:</h6>
               <ul className="list-group">
                 {order.items.map((item, index) => (
                   <li key={index} className="list-group-item d-flex justify-content-between">

@@ -12,6 +12,7 @@ import Cart from './Pages/Cart';
 import Checkout from './Pages/Checkout';
 import Orders from './Pages/Orders';
 import OrderHistory from './Pages/orderHistory';
+import ProductDetails from './Pages/ProductDetails';
 import PrivateRoute from './Components/PrivateRoute';
 
 
@@ -33,6 +34,9 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="product/:id" element={<ProductDetails />} />
+          
+          
           <Route
             path="products"
             element={

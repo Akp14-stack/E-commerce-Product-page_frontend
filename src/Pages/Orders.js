@@ -52,13 +52,13 @@ const AdminOrders = () => {
 
       const data = await res.json();
       if (data.status) {
-        setSuccessMsg('Order status updated successfully');
+        setSuccessMsg('✅ Order status updated successfully');
         fetchOrders(page); // refresh current page
       } else {
-        setErrorMsg(data.message || 'Failed to update status');
+        setErrorMsg(data.message || '❌ Failed to update status');
       }
     } catch (err) {
-      setErrorMsg('Error updating order status');
+      setErrorMsg('❌ Error updating order status');
     }
   };
 
@@ -80,7 +80,7 @@ const AdminOrders = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Admin: All Orders</h2>
+      <h2 className="mb-4">📦 Admin: All Orders</h2>
 
       {errorMsg && <Alert variant="danger">{errorMsg}</Alert>}
       {successMsg && <Alert variant="success">{successMsg}</Alert>}
@@ -94,9 +94,9 @@ const AdminOrders = () => {
       ) : (
         <>
           <Table striped bordered hover responsive>
-            <thead>
+            <thead className="table-dark">
               <tr>
-                <th>User</th>
+                <th>User Info</th>
                 <th>Items</th>
                 <th>Total</th>
                 <th>Address</th>
@@ -108,9 +108,13 @@ const AdminOrders = () => {
             <tbody>
               {orders.map((order) => (
                 <tr key={order._id}>
-                  <td>{order.user?.name}<br />{order.user?.email}</td>
                   <td>
-                    <ul>
+                    <strong>{order.user?.name}</strong><br />
+                    {order.user?.email}<br />
+                    📱 {order.mobile || 'N/A'}
+                  </td>
+                  <td>
+                    <ul className="mb-0">
                       {order.items.map((item) => (
                         <li key={item.productId}>
                           {item.name} × {item.quantity}
@@ -120,7 +124,11 @@ const AdminOrders = () => {
                   </td>
                   <td>₹{order.total}</td>
                   <td>{order.address}</td>
-                  <td>{order.status}</td>
+                  <td>
+                    <span className={`badge bg-${getBadgeColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                  </td>
                   <td>{new Date(order.createdAt).toLocaleString()}</td>
                   <td>
                     <Form.Select
@@ -143,6 +151,17 @@ const AdminOrders = () => {
       )}
     </div>
   );
+};
+
+const getBadgeColor = (status) => {
+  switch (status) {
+    case 'Pending': return 'warning';
+    case 'Processing': return 'info';
+    case 'Shipped': return 'primary';
+    case 'Delivered': return 'success';
+    case 'Cancelled': return 'danger';
+    default: return 'secondary';
+  }
 };
 
 export default AdminOrders;

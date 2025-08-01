@@ -8,18 +8,16 @@ const Checkout = () => {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
   const [address, setAddress] = useState('');
+  const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('razorpay'); // razorpay or cod
+  const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const navigate = useNavigate();
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCart(storedCart);
-    const totalPrice = storedCart.reduce(
-      (sum, item) => sum + item.quantity * item.price,
-      0
-    );
+    const totalPrice = storedCart.reduce((sum, item) => sum + item.quantity * item.price, 0);
     setTotal(totalPrice);
   }, []);
 
@@ -49,6 +47,7 @@ const Checkout = () => {
           items: formattedItems,
           total,
           address,
+          mobile,
           paymentMethod,
           ...paymentInfo,
         },
@@ -76,20 +75,21 @@ const Checkout = () => {
     if (!address.trim()) {
       return setErrorMsg('Please enter a delivery address');
     }
+    if (!mobile.trim() || !/^\d{10}$/.test(mobile)) {
+      return setErrorMsg('Please enter a valid 10-digit mobile number');
+    }
 
     setErrorMsg('');
     setLoading(true);
 
     if (paymentMethod === 'cod') {
-      // Place COD order
       await placeOrder({ paymentId: 'COD', razorpayOrderId: null });
     } else {
-      // Razorpay payment flow
       try {
         const token = getToken();
         const res = await axios.post(
           'http://localhost:7000/api/payment/order',
-          { amount: total },
+          { amount: total * 100 }, // paise
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -102,7 +102,7 @@ const Checkout = () => {
         }
 
         const options = {
-          key: 'your_razorpay_key_id', // Replace with your Razorpay Key ID
+          key: 'your_razorpay_key_id',
           amount: res.data.order.amount,
           currency: 'INR',
           name: 'My E-Commerce',
@@ -117,10 +117,16 @@ const Checkout = () => {
           prefill: {
             name: 'Customer Name',
             email: 'customer@example.com',
-            contact: '9876543210',
+            contact: mobile,
           },
           theme: {
             color: '#673AB7',
+          },
+          method: {
+            netbanking: true,
+            card: true,
+            upi: true,
+            wallet: true,
           },
         };
 
@@ -153,6 +159,16 @@ const Checkout = () => {
           <h4>Total: ₹{total}</h4>
 
           <Form.Group className="mb-3">
+            <Form.Label>Mobile Number</Form.Label>
+            <Form.Control
+              type="text"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              placeholder="Enter 10-digit mobile number"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
             <Form.Label>Delivery Address</Form.Label>
             <Form.Control
               as="textarea"
@@ -169,7 +185,7 @@ const Checkout = () => {
               <Form.Check
                 inline
                 type="radio"
-                label="Pay with Razorpay"
+                label="Pay with Razorpay / Wallets"
                 name="paymentMethod"
                 value="razorpay"
                 checked={paymentMethod === 'razorpay'}
@@ -193,7 +209,7 @@ const Checkout = () => {
             {loading ? (
               <Spinner size="sm" animation="border" />
             ) : paymentMethod === 'razorpay' ? (
-              'Pay with Razorpay'
+              'Pay Now'
             ) : (
               'Place Order (COD)'
             )}
