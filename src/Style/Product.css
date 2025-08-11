@@ -1,0 +1,43 @@
+/* Accordion compact size */
+.accordion {
+  max-width: 250px; /* Make it narrower */
+  margin-bottom: 15px;
+}
+
+.accordion-button {
+  font-weight: bold;
+  font-size: 14px; /* Slightly smaller text */
+  padding: 6px 10px;
+}
+
+/* Stylish slider */
+.form-range {
+  height: 4px;
+}
+
+.form-range::-webkit-slider-thumb {
+  background-color: #0d6efd;
+  border: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.form-range::-moz-range-thumb {
+  background-color: #0d6efd;
+  border: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+/* Layout so accordion stays above products */
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.products-section {
+  width: 100%;
+}

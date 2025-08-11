@@ -15,8 +15,11 @@ import OrderHistory from './Pages/orderHistory';
 import ProductDetails from './Pages/ProductDetails';
 import PrivateRoute from './Components/PrivateRoute';
 
-
 function App() {
+  // 🔹 Top-level product state for search
+  const [allProducts, setAllProducts] = React.useState([]);
+  const [filteredProducts, setFilteredProducts] = React.useState([]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -25,7 +28,15 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
 
         {/* User Layout + Protected Pages */}
-        <Route path="/" element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            <Layout
+              allProducts={allProducts}
+              setFilteredProducts={setFilteredProducts}
+            />
+          }
+        >
           <Route
             index
             element={
@@ -35,13 +46,17 @@ function App() {
             }
           />
           <Route path="product/:id" element={<ProductDetails />} />
-          
-          
+
           <Route
             path="products"
             element={
               <PrivateRoute role="user">
-                <Products />
+                <Products
+                  allProducts={allProducts}
+                  setAllProducts={setAllProducts}
+                  filteredProducts={filteredProducts}
+                  setFilteredProducts={setFilteredProducts}
+                />
               </PrivateRoute>
             }
           />

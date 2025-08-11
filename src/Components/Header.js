@@ -10,9 +10,8 @@ import {
 } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaUser, FaBoxOpen } from 'react-icons/fa';
-import axios from 'axios';
 
-function Header({ setFilteredProducts }) {
+function Header() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [role, setRole] = React.useState(null);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -33,29 +32,12 @@ function Header({ setFilteredProducts }) {
   };
 
   const expand = 'lg';
-
   const isActive = (path) => (location.pathname === path ? 'active-link' : '');
 
-  // 🔍 Search Handler
-  const handleSearch = async (e) => {
+  // 🔍 Only navigate with search term
+  const handleSearch = (e) => {
     e.preventDefault();
-
-    try {
-      const res = await axios.get('http://localhost:7000/api/products');
-      const filtered = res.data.products.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      if (typeof setFilteredProducts === 'function') {
-        // Same-page search: works in ProductList or Products page
-        setFilteredProducts(filtered);
-      } else {
-        // Navigate to /products with query (fallback)
-        navigate(`/products?search=${searchTerm}`);
-      }
-    } catch (err) {
-      console.error('Search failed', err);
-    }
+    navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
   };
 
   return (
@@ -79,7 +61,6 @@ function Header({ setFilteredProducts }) {
             <Offcanvas.Body>
               <Nav className="justify-content-end flex-grow-1 pe-3 gap-2">
 
-                {/* User Links */}
                 {role === 'user' && (
                   <>
                     <Nav.Link as={Link} to="/" className={isActive('/')}>
@@ -97,7 +78,6 @@ function Header({ setFilteredProducts }) {
                   </>
                 )}
 
-                {/* Admin Links */}
                 {role === 'admin' && (
                   <>
                     <Nav.Link as={Link} to="/admin/products" className={isActive('/admin/products')}>
@@ -112,7 +92,6 @@ function Header({ setFilteredProducts }) {
                   </>
                 )}
 
-                {/* Profile Dropdown */}
                 <NavDropdown
                   title={<span><FaUser className="me-1" /> Profile</span>}
                   id={`offcanvasNavbarDropdown-expand-${expand}`}
@@ -140,7 +119,11 @@ function Header({ setFilteredProducts }) {
               </Nav>
 
               {/* 🔍 Search Box */}
-              <Form className="d-flex mt-4 mt-lg-0 ms-lg-3" role="search" onSubmit={handleSearch}>
+              <Form
+                className="d-flex mt-4 mt-lg-0 ms-lg-3"
+                role="search"
+                onSubmit={handleSearch}
+              >
                 <Form.Control
                   type="search"
                   placeholder="Search products..."
@@ -149,7 +132,11 @@ function Header({ setFilteredProducts }) {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Button variant="outline-primary" className="rounded-pill px-4" type="submit">
+                <Button
+                  variant="outline-primary"
+                  className="rounded-pill px-4"
+                  type="submit"
+                >
                   Search
                 </Button>
               </Form>

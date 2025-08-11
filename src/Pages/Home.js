@@ -10,6 +10,7 @@ import {
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import '../Style/Home.css'; 
+
 function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,9 @@ function Home() {
         const data = await res.json();
 
         if (res.ok) {
-          setProducts(data.products);
+          // Sirf top 8 products as "featured"
+          const featured = data.products.slice(0, 8);
+          setProducts(featured);
         } else {
           setErr(data.message || 'Failed to fetch products');
         }
