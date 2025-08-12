@@ -46,7 +46,7 @@ function ProductList() {
         toast.success('🗑️ Product deleted!');
         const updated = products.filter((p) => p._id !== id);
         setProducts(updated);
-        setFilteredProducts(updated); // Update filtered list too
+        setFilteredProducts(updated);
       } else {
         toast.error(data.message || '❌ Delete failed');
       }
