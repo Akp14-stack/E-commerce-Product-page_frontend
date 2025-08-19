@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './Components/Layout';
 import AdminLayout from './Components/AdminLayout';
 import Home from './Pages/Home';
@@ -20,9 +20,29 @@ function App() {
   const [allProducts, setAllProducts] = React.useState([]);
   const [filteredProducts, setFilteredProducts] = React.useState([]);
 
+  // 🔹 Check if user is logged in
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+
   return (
     <BrowserRouter>
       <Routes>
+        {/* Redirect root ("/") to login if no token, otherwise go to dashboard */}
+        <Route
+          path="/"
+          element={
+            token ? (
+              role === 'admin' ? (
+                <Navigate to="/admin/products" replace />
+              ) : (
+                <Navigate to="/home" replace />
+              )
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
         {/* Public Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
@@ -38,7 +58,7 @@ function App() {
           }
         >
           <Route
-            index
+            path="home"
             element={
               <PrivateRoute role="user">
                 <Home />
@@ -121,6 +141,9 @@ function App() {
             }
           />
         </Route>
+
+        {/* Fallback - if no route matches */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
