@@ -5,6 +5,7 @@ import AdminLayout from './Components/AdminLayout';
 import Home from './Pages/Home';
 import Login from './Pages/LogIn';
 import SignUp from './Pages/SignUp';
+import Profile from './Pages/Profile';
 import Products from './Pages/Products';
 import AddProduct from './Pages/Addproduct';
 import ProductList from './Pages/ProductList';
@@ -14,6 +15,8 @@ import Orders from './Pages/Orders';
 import OrderHistory from './Pages/orderHistory';
 import ProductDetails from './Pages/ProductDetails';
 import PrivateRoute from './Components/PrivateRoute';
+import About from './Pages/About';
+import Contact from './Pages/Contact';
 
 function App() {
   // 🔹 Top-level product state for search
@@ -104,6 +107,18 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="profile"
+            element={
+              <PrivateRoute role="user">
+                <Profile userId={null} />
+              </PrivateRoute>
+            }
+          />
+
+          {/* ✅ About & Contact Routes (Public) */}
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
         </Route>
 
         {/* Admin Layout + Protected Pages */}

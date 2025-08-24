@@ -34,7 +34,6 @@ function Header() {
   const expand = 'lg';
   const isActive = (path) => (location.pathname === path ? 'active-link' : '');
 
-  // 🔍 Only navigate with search term
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
@@ -45,7 +44,7 @@ function Header() {
       <Navbar expand={expand} className="bg-white shadow-lg py-3">
         <Container fluid>
           <Navbar.Brand as={Link} to="/" className="fw-bold fs-4 text-primary">
-            🛍️ E-COMMERCE
+            🛍️ Click-Bazaar
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="offcanvasNavbar" />
           <Navbar.Offcanvas
@@ -60,7 +59,7 @@ function Header() {
             </Offcanvas.Header>
             <Offcanvas.Body>
               <Nav className="justify-content-end flex-grow-1 pe-3 gap-2">
-
+                {/* User Links */}
                 {role === 'user' && (
                   <>
                     <Nav.Link as={Link} to="/" className={isActive('/')}>
@@ -78,6 +77,7 @@ function Header() {
                   </>
                 )}
 
+                {/* Admin Links */}
                 {role === 'admin' && (
                   <>
                     <Nav.Link as={Link} to="/admin/products" className={isActive('/admin/products')}>
@@ -92,33 +92,43 @@ function Header() {
                   </>
                 )}
 
-                <NavDropdown
-                  title={<span><FaUser className="me-1" /> Profile</span>}
-                  id={`offcanvasNavbarDropdown-expand-${expand}`}
-                >
-                  {isLoggedIn ? (
-                    <>
-                      <NavDropdown.Item as={Link} to="/profile">
-                        My Profile
-                      </NavDropdown.Item>
-                      <NavDropdown.Item onClick={logout}>
-                        Logout
-                      </NavDropdown.Item>
-                    </>
-                  ) : (
-                    <>
-                      <NavDropdown.Item as={Link} to="/login">
-                        Login
-                      </NavDropdown.Item>
-                      <NavDropdown.Item as={Link} to="/sign-up">
-                        Sign Up
-                      </NavDropdown.Item>
-                    </>
-                  )}
-                </NavDropdown>
+                {/* Profile / Logout */}
+                {isLoggedIn && role === 'user' && (
+                  <NavDropdown
+                    title={<span><FaUser className="me-1" /> Profile</span>}
+                    id={`offcanvasNavbarDropdown-expand-${expand}`}
+                  >
+                    <NavDropdown.Item as={Link} to="/profile">
+                      My Profile
+                    </NavDropdown.Item>
+                    <NavDropdown.Item onClick={logout}>
+                      Logout
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                )}
+
+                {isLoggedIn && role === 'admin' && (
+                  <Nav.Link onClick={logout}>
+                    <FaUser className="me-1" /> Logout
+                  </Nav.Link>
+                )}
+
+                {!isLoggedIn && (
+                  <NavDropdown
+                    title={<span><FaUser className="me-1" /> Profile</span>}
+                    id={`offcanvasNavbarDropdown-expand-${expand}`}
+                  >
+                    <NavDropdown.Item as={Link} to="/login">
+                      Login
+                    </NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/sign-up">
+                      Sign Up
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                )}
               </Nav>
 
-              {/* 🔍 Search Box */}
+              {/* Search Box */}
               <Form
                 className="d-flex mt-4 mt-lg-0 ms-lg-3"
                 role="search"

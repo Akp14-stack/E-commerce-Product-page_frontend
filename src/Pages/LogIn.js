@@ -36,12 +36,26 @@ function Login() {
 
 			if (response.status) {
 				toast.success('Login successful!');
-				localStorage.setItem('token', response.token);
-				localStorage.setItem('userId', response.data._id);
-				localStorage.setItem('role', role);
-				navigate(role === 'admin' ? '/admin/add-product' : '/');
+
+				// ✅ Save to localStorage
+				if (response.token) {
+					localStorage.setItem("token", response.token);
+				}
+				if (response.data && response.data._id) {
+					localStorage.setItem("userId", response.data._id);
+				} else if (response.user && response.user._id) {
+					localStorage.setItem("userId", response.user._id);
+				}
+				localStorage.setItem("role", role);
+
+				// ✅ Redirect
+				if (role === "admin") {
+					navigate("/admin/add-product");
+				} else {
+					navigate("/");
+				}
 			} else {
-				toast.error(response.message);
+				toast.error(response.message || "Login failed");
 			}
 		} catch (error) {
 			console.error('Error:', error);
@@ -122,12 +136,9 @@ function Login() {
 				</Row>
 			</Container>
 
-			{/* 🎨 Custom styles */}
 			<style>{`
 				.login-bg {
 					background: linear-gradient(to right, #74ebd5, #ACB6E5);
-					/* Or use image: */
-					/* background: url('/bg-login.jpg') no-repeat center center/cover; */
 				}
 				.backdrop-blur {
 					backdrop-filter: blur(8px);

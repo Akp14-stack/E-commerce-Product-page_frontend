@@ -37,8 +37,17 @@ function SignUp() {
 			response = await response.json();
 
 			if (response.status) {
+				// ✅ Save userId (and token if available) in localStorage
+				if (response.user && response.user._id) {
+					localStorage.setItem("userId", response.user._id);
+				}
+				if (response.token) {
+					localStorage.setItem("token", response.token);
+				}
+				localStorage.setItem("role", role);
+
 				toast.success('Signup successful!');
-				setTimeout(() => navigate('/login'), 1000);
+				setTimeout(() => navigate('/profile'), 1000); // go to profile instead of login
 			} else {
 				toast.error(response.message || 'Signup failed');
 			}
